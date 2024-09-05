@@ -41,7 +41,7 @@ function AppointmentScheduling({
     const fetchClientSecret = async () => {
       try {
         const response = await fetch(
-          "http://localhost:5000/create-payment-intent",
+          "https://ma-1.onrender.com/create-payment-intent",
           {
             method: "POST",
             headers: {
@@ -99,7 +99,7 @@ function AppointmentScheduling({
 
     try {
       const response = await fetch(
-        `http://localhost:5000/api/appointments/slots?date=${date.toISOString()}`
+        `https://ma-1.onrender.com/api/appointments/slots?date=${date.toISOString()}`
       );
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
