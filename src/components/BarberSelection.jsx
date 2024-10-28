@@ -74,6 +74,9 @@ function BarberSelection({ barbers, onSelectBarber }) {
                 <p className="text-center text-[10px] md:text-[11px] text-gray-400">
                   {barber.specialty}
                 </p>
+                <p className="text-center text-[10px] md:text-[11px] text-gray-400">
+                  {barber.status}
+                </p>
               </motion.li>
             ))}
           </motion.ul>

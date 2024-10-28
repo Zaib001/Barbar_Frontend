@@ -4,6 +4,7 @@ import { FaSun, FaMoon, FaCalendarAlt } from "react-icons/fa";
 import { FiCheckCircle } from "react-icons/fi";
 import Loader from "./Loader";
 import Calendar from "react-calendar";
+import VoucherForm from "./VoucherForm";
 import {
   Elements,
   PaymentElement,
@@ -23,6 +24,8 @@ function AppointmentScheduling({
   selectedBarber,
   onSelectSlot,
 }) {
+  const [showVoucherForm, setShowVoucherForm] = useState(false); // Control VoucherForm visibility
+  const [discount, setDiscount] = useState(0);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedSlot, setSelectedSlot] = useState(null);
   const [showMoreDates, setShowMoreDates] = useState(false);
@@ -36,19 +39,26 @@ function AppointmentScheduling({
   const [clientSecret, setClientSecret] = useState("");
   const [availableSlots, setAvailableSlots] = useState([]);
   const [userId, setUserId] = useState(null);
+  const [FinalTotal, setFinalTotal] = useState(0);
+
+  useEffect(() => {
+    const discountedServicePrice = totalPrice - (totalPrice * discount) / 100;
+    const tipAmount = (discountedServicePrice * tipPercentage) / 100; // Calculate tip on discounted price
+    setFinalTotal(discountedServicePrice + tipAmount);
+  }, [discount, tipPercentage, totalPrice]);
 
   useEffect(() => {
     const fetchClientSecret = async () => {
       try {
         const response = await fetch(
-          "https://ma-1.onrender.com/create-payment-intent",
+          "http://localhost:5000/create-payment-intent",
           {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              amount: finalTotal * 100, // Convert amount to cents
+              amount: FinalTotal * 100, // Convert amount to cents
             }),
           }
         );
@@ -59,10 +69,10 @@ function AppointmentScheduling({
       }
     };
 
-    if (finalTotal > 0) {
+    if (FinalTotal > 0) {
       fetchClientSecret();
     }
-  }, [finalTotal]);
+  }, [FinalTotal]);
 
   const generateDatesOfMonth = () => {
     const dates = [];
@@ -78,9 +88,13 @@ function AppointmentScheduling({
 
     return dates;
   };
+  const handleVoucherApplied = (discountPercentage) => {
+    setDiscount(discountPercentage); // Apply discount from VoucherForm
+    setShowVoucherForm(false); // Hide VoucherForm after applying
+  };
   const handleUserCreated = (id) => {
     setUserId(id);
-    console.log("userID" ,userId)
+    console.log("userID", userId);
   };
   useEffect(() => {
     if (userId) {
@@ -99,7 +113,7 @@ function AppointmentScheduling({
 
     try {
       const response = await fetch(
-        `https://ma-1.onrender.com/api/appointments/slots?date=${date.toISOString()}`
+        `http://localhost:5000/api/appointments/slots?date=${date.toISOString()}`
       );
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
@@ -155,8 +169,7 @@ function AppointmentScheduling({
   };
   const handleFinalConfirmation = async () => {
     setShowConfirmation(false);
-    setShowPayment(true);
-
+    setShowVoucherForm(true);
     const isSlotAvailable = availableSlots.some(
       (slot) => slot.time === selectedSlot.time
     );
@@ -167,6 +180,10 @@ function AppointmentScheduling({
       );
       return;
     }
+  };
+  const completeFinal = async () => {
+    setShowPayment(true);
+    setShowVoucherForm(false);
   };
 
   const handleCloseConfirmation = () => {
@@ -252,7 +269,7 @@ function AppointmentScheduling({
           <div className="flex justify-between mt-4 border-t border-stone-300 pt-2">
             <h6 className="text-[12px] text-stone-400 pl-4">Final Total</h6>
             <p className="text-[10px] text-stone-700 font-bold pr-4">
-              ${finalTotal.toFixed(2)}
+              ${FinalTotal.toFixed(2)}
             </p>
           </div>
         </>
@@ -486,17 +503,35 @@ function AppointmentScheduling({
             <AnimatePresence>
               {showConfirmation && (
                 <motion.div
-                  className="absolute top-64 left-0 right-0 bottom-0 bg-white p-6 rounded-xl shadow-lg"
+                  className="absolute top-40 left-0 right-0 bottom-0 bg-white p-6 rounded-xl shadow-lg"
                   initial={{ opacity: 0, y: 50 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 50 }}
                   transition={{ type: "spring", stiffness: 300, damping: 100 }}
                 >
-                  <UserForm handleFinalConfirmation={handleFinalConfirmation} handleUserCreated={handleUserCreated} />
+                  <UserForm
+                    handleFinalConfirmation={handleFinalConfirmation}
+                    handleUserCreated={handleUserCreated}
+                  />
                 </motion.div>
               )}
             </AnimatePresence>
-
+            <AnimatePresence>
+              {showVoucherForm && (
+                <motion.div
+                  className="absolute top-[20rem] left-0 right-0 bottom-0 bg-white p-6 rounded-xl shadow-lg"
+                  initial={{ opacity: 0, y: 50 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 50 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 100 }}
+                >
+                  <VoucherForm
+                    onApplyDiscount={handleVoucherApplied}
+                    completeFinal={completeFinal}
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
             <AnimatePresence>
               {showPayment && (
                 <motion.div
@@ -509,9 +544,9 @@ function AppointmentScheduling({
                   <h4 className="text-lg font-bold">Payment</h4>
                   <Elements stripe={stripePromise} options={{ clientSecret }}>
                     <CheckoutForm
-                    userId={userId}
+                      userId={userId}
                       clientSecret={clientSecret}
-                      finalTotal={finalTotal}
+                      finalTotal={FinalTotal}
                       selectedBarber={selectedBarber}
                       selectedServices={selectedServices}
                       selectedDate={selectedDate}

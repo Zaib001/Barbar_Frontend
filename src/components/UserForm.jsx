@@ -1,84 +1,103 @@
-import { useState } from "react";
+import React, { useState } from "react";
+import PhoneInput from "react-phone-number-input";
+import "react-phone-number-input/style.css"; // Ensure this is imported to apply styles
 
-function UserForm({ handleFinalConfirmation , handleUserCreated }) {
-  const [name, setName] = useState("");
+// UserForm Component
+function UserForm({ handleFinalConfirmation, handleUserCreated }) {
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState(""); // Phone number state
   const [error, setError] = useState(null);
 
+  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      const response = await fetch("https://ma-1.onrender.com/api/users", {
+      const response = await fetch("http://localhost:5000/api/users", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ name, email, phone }),
+        body: JSON.stringify({
+          firstName,
+          lastName,
+          email,
+          phoneNumber,
+        }),
       });
 
       if (response.ok) {
         const result = await response.json();
-        console.log(result.user)
-        handleUserCreated(result.user._id); 
-        handleFinalConfirmation(); // Proceed after successful creation
+        handleUserCreated(result.user._id);
+        handleFinalConfirmation();
       } else {
         const errorData = await response.json();
-        console.error("Error creating user:", errorData);
         setError(errorData.message || "Error creating user");
       }
     } catch (err) {
-      console.error("Network error:", err);
       setError("Network error, please try again later.");
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <h4 className="text-lg font-bold">Create User</h4>
-      {error && <p className="text-red-500">{error}</p>}
-      <div className="flex flex-col">
-        <label className="text-gray-700">Name:</label>
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <h4 className="text-lg font-semibold mb-4">Your Information</h4>
+      {error && <p className="text-red-500 text-sm">{error}</p>}
+
+      {/* Name Input Fields */}
+      <div className="grid grid-cols-2 gap-4">
         <input
           type="text"
-          className="border rounded-md p-2"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
+          placeholder="First name"
+          className="w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          value={firstName}
+          onChange={(e) => setFirstName(e.target.value)}
           required
         />
-      </div>
-      <div className="flex flex-col">
-        <label className="text-gray-700">Email:</label>
         <input
-          type="email"
-          className="border rounded-md p-2"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          type="text"
+          placeholder="Last name"
+          className="w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          value={lastName}
+          onChange={(e) => setLastName(e.target.value)}
           required
         />
       </div>
-      <div className="flex flex-col">
-        <label className="text-gray-700">Phone:</label>
-        <input
-          type="tel"
-          className="border rounded-md p-2"
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
-          required
-        />
-      </div>
-      <div className="flex justify-end mt-4">
+
+      {/* Phone Number Input with Flags */}
+      <PhoneInput
+        placeholder="Enter phone number"
+        value={phoneNumber}
+        onChange={setPhoneNumber}
+        defaultCountry="GB" // Default to United Kingdom
+        className="w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        required
+      />
+
+      {/* Email Input Field */}
+      <input
+        type="email"
+        placeholder="Email"
+        className="w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        required
+      />
+
+      {/* Submit and Cancel Buttons */}
+      <div className="flex justify-end space-x-4 mt-4">
         <button
           type="submit"
-          className="bg-gray-900 text-white py-2 px-4 rounded-md mr-2"
+          className="bg-gray-900 text-white py-2 px-6 rounded-md hover:bg-gray-700 transition"
         >
           Yes, Confirm
         </button>
         <button
           type="button"
-          className="bg-gray-200 text-gray-700 py-2 px-4 rounded-md"
-          onClick={() => setShowConfirmation(false)}
+          className="bg-gray-200 text-gray-700 py-2 px-6 rounded-md hover:bg-gray-300 transition"
+          onClick={() => setError(null)}
         >
           Cancel
         </button>
