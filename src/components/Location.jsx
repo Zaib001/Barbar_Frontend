@@ -47,14 +47,7 @@ const Location = ({ onSelect }) => {
             <a href="#gallery" className="hover:underline">Gallery</a>
           </motion.nav>
 
-          <motion.button
-            className="border border-white px-4 py-2 rounded-full hover:bg-white hover:text-black transition duration-300"
-            initial={{ opacity: 0, y: -50 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1 }}
-          >
-            Book Now +402-341-6052
-          </motion.button>
+         
         </header>
 
         <div className="h-full flex items-center justify-between px-12 lg:px-32 relative z-10">
