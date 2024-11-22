@@ -45,7 +45,7 @@ function CheckoutForm({
       } else if (paymentIntent && paymentIntent.status === "succeeded") {
         try {
           const appointmentResponse = await fetch(
-            "https://ma-ney3.onrender.com/api/appointments",
+            "http://localhost:5000/api/appointments",
             {
               method: "POST",
               headers: {

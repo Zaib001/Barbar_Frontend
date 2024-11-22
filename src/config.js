@@ -1,2 +1,2 @@
 // src/config.js
-export const API_BASE_URL = "https://ma-ney3.onrender.com/api";  // Adjust based on your server setup
+export const API_BASE_URL = "http://localhost:5000/api";  // Adjust based on your server setup
