@@ -48,7 +48,7 @@ function App() {
 
   const fetchServices = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/services`);
+      const response = await axios.get(`https://ma-1.onrender.com/services`);
       setServices(response.data);
     } catch (error) {
       console.error("Error fetching services:", error);
@@ -57,7 +57,7 @@ function App() {
 
   const fetchBarbers = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/barbers`);
+      const response = await axios.get(`https://ma-1.onrender.com/barbers`);
       setBarbers(response.data);
       console.log(response.data);
     } catch (error) {
