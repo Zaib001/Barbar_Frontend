@@ -29,7 +29,7 @@ function CheckoutForm({
       const { error, paymentIntent } = await stripe.confirmPayment({
         elements,
         confirmParams: {
-          return_url: "http://localhost:5173/",
+          return_url: "https://barbar-frontend.onrender.com",
         },
         redirect: "if_required",
       });
@@ -45,7 +45,7 @@ function CheckoutForm({
       } else if (paymentIntent && paymentIntent.status === "succeeded") {
         try {
           const appointmentResponse = await fetch(
-            "http://localhost:5000/api/appointments",
+            "https://ma-1.onrender.com/api/appointments",
             {
               method: "POST",
               headers: {
