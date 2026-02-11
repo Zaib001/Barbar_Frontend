@@ -17,7 +17,7 @@ const VoucherForm = ({ onApplyDiscount, completeFinal }) => {
       setLoading(true); // Start loading
 
       const response = await axios.post(
-        "http://localhost:5000/api/vouchers/verify",
+        "https://ma-1.onrender.com/api/vouchers/verify",
         { code: voucherCode }
       );
 
